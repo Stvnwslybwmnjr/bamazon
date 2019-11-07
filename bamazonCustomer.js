@@ -30,15 +30,18 @@ connection.query("SELECT * FROM products", function(error,data){
 
 
 function start(products) {
-    console.log(products)
+    // console.log(products)
 
+    for (y in products){
+        console.log(`ID: ${products[y].item_id}   Product: ${products[y].product_name}              Price: $${products[y].price}          In Stock: ${products[y].stock_quantity}`)
+    }
     //display everthing in table
     inquirer
         .prompt([{
             name: "id",
             type: "list",
             message: "What is the ID of the product you wish to purchase?",
-            choices: [products[0].product_name, "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         },{
            name: "quantity",
            type:  "input",
@@ -47,21 +50,37 @@ function start(products) {
 
             let selected= products[answer.id-1]
            if(selected.stock_quantity < answer.quantity){
-               console.log("we dont have enough, we only have "+ selected.stock_quantity)
-               inquirer
+               console.log(`
+               We don't have that much in stock. 
+               The current amount in stock is ${selected.stock_quantity}
+               
+               Purhaps you'd be interested in one of our other fine products!
+               `)
+            
                start(products)
            }else{
                //tell price
+               for (z in products){
+                   if (answer.id == products[z].item_id){
+                      let showPrice = products[z].price * answer.quantity;
+                      console.log(`=======================THANK YOU FOR YOUR PURCHASE!===============================`)
+                      console.log(`${answer.quantity} ${products[z].product_name} will cost $${showPrice}`)
+                   }
+               }
                 //update inventory
                 connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?", [answer.quantity, answer.id], function(error, response){
                     if(error){
                         throw error;
                     }
                     console.log(response);
-
+                   
+           
                     process.exit(0)
                 })
+
             }
+            
+
             // switch (answer.id) {
             //     case "1":
             //         console.log("ID = 1")
